@@ -3,15 +3,12 @@
 # DEBUG SETUP
 DebugMode:      TCPPORT
 DebugFlags:     ALL
-#CALLS INFO SOLVE AGENT COMMAND
 #
 # SYMBOLICS
-# Symbolic: <param index>, <full method name>
 # param 1 in Category7_vulnerable.main is the variable: int n
 Symbolic:       1, e1e4/Category7_vulnerable.main([Ljava/lang/String;)V
 #
 # CONSTRAINTS
-# Constraint: <symbolic index>  <EQ|NE|GT|GE|LT|LE> <Double|Float|Long|Integer> <value>
 # need to limit the value of n to invalidate values > 3 and < 0
-Constraint:    0 LE Integer 9
-Constraint:    0 GT Integer 0
+Constraint:     0 LE Integer 9
+Constraint:     0 GT Integer 0
