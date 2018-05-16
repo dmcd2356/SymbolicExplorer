@@ -40,7 +40,7 @@ public class Explorer {
     String result = "";    
 
     // get constraints from the Executor in the running program
-    z3Constraints = danalyzer.executor.Executor.getConstraints();
+    z3Constraints = danalyzer.executor.Executor.getZ3Constraints();
     if (z3Constraints.size() < 1) {
       System.out.println("fuzzer_bitFlip: No constraints found!");
       return result;

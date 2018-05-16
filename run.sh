@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z ${JAVA_HOME} ]; then
-    JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+    export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
 fi
 
 # these options help catch errors.
@@ -10,10 +10,17 @@ fi
 set -o nounset
 #set -o errexit
 
-ROOTPATH="/home/dmcd2356/Projects/ISSTAC/"
-HELPPATH="${ROOTPATH}repo/danhelper/"
-DANPATH="${ROOTPATH}repo/danalyzer/"
-TESTPATH="${ROOTPATH}Tests/"
+# this just makes it easier to change users if the repos are organized the same as below.
+HOME="/home/dse"
+
+# this is the location of the danalyzer repo
+DANALYZER_REPO="${HOME}/Projects/isstac/danalyzer/"
+
+# this is the location of the danhelper agent repo
+DANHELPER_REPO="${HOME}/Projects/isstac/danhelper/"
+
+# this is where to build and run the danalyzer-instrumented files.
+TESTPATH="${HOME}/Projects/isstac/DSETests/"
 
 
 # adds specified jar file to $CLASSPATH
@@ -146,10 +153,10 @@ ARGLIST="5"
 
 # check if agent lib has been built
 NOAGENT=0
-AGENTLIBDIR="${HELPPATH}src/"
+AGENTLIBDIR="${DANHELPER_REPO}src/"
 if [ ! -f "${AGENTLIBDIR}libdanhelper.so" ]; then
-    if [ -f "${HELPPATH}libdanhelper.so" ]; then
-        AGENTLIBDIR="${HELPPATH}"
+    if [ -f "${DANHELPER_REPO}libdanhelper.so" ]; then
+        AGENTLIBDIR="${DANHELPER_REPO}"
     else
         NOAGENT=1
     fi
@@ -158,18 +165,18 @@ fi
 # build agent
 if [[ ${NOAGENT} -ne 0 || ${FORCE} -ne 0 ]]; then
     # these next commands run from the danhelper (agent) path
-    cd ${HELPPATH}
+    cd ${DANHELPER_REPO}
     if [[ ${TESTMODE} -ne 0 ]]; then
         echo
-        echo "  (from: ${HELPPATH})"
+        echo "  (from: ${DANHELPER_REPO})"
     fi
 
     echo "- building danhelper agent"
     if [[ ${TESTMODE} -eq 0 ]]; then
         make
-        if [ -f "${HELPPATH}src/libdanhelper.so" ]; then
-            mv ${HELPPATH}src/libdanhelper.so ${HELPPATH}libdanhelper.so
-            AGENTLIBDIR="${HELPPATH}"
+        if [ -f "${DANHELPER_REPO}src/libdanhelper.so" ]; then
+            mv ${DANHELPER_REPO}src/libdanhelper.so ${DANHELPER_REPO}libdanhelper.so
+            AGENTLIBDIR="${DANHELPER_REPO}"
         fi
     else
         echo "make"
@@ -177,7 +184,7 @@ if [[ ${NOAGENT} -ne 0 || ${FORCE} -ne 0 ]]; then
 fi
 
 # next, build the specified project and instrument it
-cd ${HELPPATH}
+cd ${DANHELPER_REPO}
 if [[ ${TESTMODE} -eq 0 ]]; then
     ./make.sh ${PROJECT} ${ARGLIST}
 else
@@ -197,10 +204,10 @@ get_project_info
 # now update the SymbolicExplorer that uses both danalyzer and the instrumented project
 echo "- building SymbolicExplorer"
 CLASSPATH=""
-add_to_classpath "${DANPATH}lib/commons-io-2.5.jar"
-add_to_classpath "${DANPATH}lib/asm-all-5.2.jar"
-add_to_classpath "${DANPATH}lib/com.microsoft.z3.jar"
-add_to_classpath "${DANPATH}/dist/danalyzer.jar"
+add_to_classpath "${DANALYZER_REPO}lib/commons-io-2.5.jar"
+add_to_classpath "${DANALYZER_REPO}lib/asm-all-5.2.jar"
+add_to_classpath "${DANALYZER_REPO}lib/com.microsoft.z3.jar"
+add_to_classpath "${DANALYZER_REPO}/dist/danalyzer.jar"
 add_to_classpath "${PROJDIR}/${PROJJAR}-dan-ed.jar"
 if [[ ${TESTMODE} -eq 0 ]]; then
     javac -cp ${CLASSPATH} explorer/Explorer.java
@@ -241,7 +248,7 @@ fi
 
 # run the instrumented code with the agent
 OPTIONS="-Xverify:none -Dsun.boot.library.path=$JAVA_HOME/bin:/usr/lib"
-BOOTCLASSPATH="-Xbootclasspath/a:${DANPATH}dist/danalyzer.jar:${DANPATH}lib/com.microsoft.z3.jar"
+BOOTCLASSPATH="-Xbootclasspath/a:${DANALYZER_REPO}dist/danalyzer.jar:${DANALYZER_REPO}lib/com.microsoft.z3.jar"
 AGENTPATH="-agentpath:${AGENTLIBDIR}libdanhelper.so"
 MAINCLASS="explorer.Explorer"
 
