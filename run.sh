@@ -11,7 +11,9 @@ set -o nounset
 #set -o errexit
 
 # this just makes it easier to change users if the repos are organized the same as below.
-HOME="/home/dse"
+if [[ -z ${HOME} ]]; then
+    HOME="/home/dse"
+fi
 
 # this is the location of the danalyzer repo
 DANALYZER_REPO="${HOME}/Projects/isstac/danalyzer/"
