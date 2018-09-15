@@ -1,25 +1,49 @@
 #!/bin/bash
 
+# make sure JAVA_HOME is exported or danhelper will not be able to compile.
 if [ -z ${JAVA_HOME} ]; then
-    export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+    echo "JAVA_HOME is not currently defined"
+    if [ -d /usr/lib/jvm/java-8-openjdk-amd64 ]; then
+        export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
+    else
+        echo "The java folder /usr/lib/jvm/java-8-openjdk-amd64 was not found."
+        echo "Please install java and export the JAVA_HOME definition."
+        exit 1
+    fi
+fi
+
+# this just makes it easier to change users if the repos are organized the same as below.
+# The $HOME path should be set to the base dir where Projects is located (e.g. your home directory).
+if [[ -z ${HOME} ]]; then
+    # not set: if this command is being run from the "dse" directory (which is where the script
+    # exists), let's assume the base dir is 3 dirs up from this.
+    CURPATH=`pwd`
+    echo ${CURPATH}
+    if [[ ${CURPATH} == *"/Projects/isstac/dse" ]]; then
+      HOME=${CURPATH%/Projects/isstac/dse*}
+      echo ${HOME}
+      echo "HOME set to: ${HOME}"
+    else
+      echo "HOME not defined. export HOME to your home directory."
+      exit 1
+    fi
 fi
 
 # these options help catch errors.
 # 'nounset' throws an error if a parameter being used is undefined.
+#     - must be set after the 2 cases above, since they are testing parameters that mey not be set.
 # 'errexit' causes any error condition to terminate the script, so it doesn't continue running.
 set -o nounset
 #set -o errexit
 
-# this just makes it easier to change users if the repos are organized the same as below.
-if [[ -z ${HOME} ]]; then
-    HOME="/home/dse"
-fi
+# define some basic paths needed
+DSE_BASE="${HOME}/Projects/isstac/dse"
 
 # this is the location of the danalyzer repo
-DANALYZER_REPO="${HOME}/Projects/isstac/danalyzer/"
+DANALYZER_REPO="${DSE_BASE}/danalyzer/"
 
 # this is the location of the danhelper agent repo
-DANHELPER_REPO="${HOME}/Projects/isstac/danhelper/"
+DANHELPER_REPO="${DSE_BASE}/danhelper/"
 
 # this is where to build and run the danalyzer-instrumented files.
 TESTPATH="${HOME}/Projects/isstac/DSETests/"
@@ -186,7 +210,7 @@ if [[ ${NOAGENT} -ne 0 || ${FORCE} -ne 0 ]]; then
 fi
 
 # next, build the specified project and instrument it
-cd ${DANHELPER_REPO}
+cd ${DSE_BASE}
 if [[ ${TESTMODE} -eq 0 ]]; then
     ./make.sh ${PROJECT} ${ARGLIST}
 else

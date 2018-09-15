@@ -1,14 +1,29 @@
 #! DANALYZER SYMBOLIC EXPRESSION LIST
 #
 # DEBUG SETUP
-DebugMode:      TCPPORT
-DebugFlags:     ALL
+DebugFlags: ALL
+DebugMode: TCPPORT
+DebugPort: 5000
+IPAddress: localhost
+#
+# DEBUG TRIGGER SETUP
+TriggerOnInstr: 0
+TriggerOnCall: 0
+TriggerOnReturn: 0
+TriggerOnError: 0
+TriggerOnException: 0
+TriggerAuto: 0
+TriggerAnyMeth: 0
+TriggerClass: null
+TriggerMethod: null
+TriggerCount: 1
+TriggerRange: 0
+TriggerInstruction: 1
 #
 # SYMBOLICS
-# param 1 in Category7_vulnerable.main is the variable: int n
-Symbolic:       1, e1e4/Category7_vulnerable.main([Ljava/lang/String;)V
+Symbolic: 1, e1e4/Category7_vulnerable.main([Ljava/lang/String;)V
 #
-# CONSTRAINTS
-# need to limit the value of n to invalidate values > 3 and < 0
-Constraint:     0 LE Integer 9
-Constraint:     0 GT Integer 0
+# CONSTRAINTS (must follow SYMBOLICS - index references the list starting at 0)
+Constraint: 0 LE Integer 9
+Constraint: 0 GT Integer 0
+

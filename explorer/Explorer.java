@@ -37,17 +37,19 @@ public class Explorer {
   }
 
   public String fuzzer_bitFlip() {
-    String result = "";    
+    String result = "";
+    
+    int tid = 0;
 
     // get constraints from the Executor in the running program
-    z3Constraints = danalyzer.executor.Executor.getZ3Constraints();
+    z3Constraints = danalyzer.executor.ExecWrapper.getZ3Constraints(tid);
     if (z3Constraints.size() < 1) {
       System.out.println("fuzzer_bitFlip: No constraints found!");
       return result;
     }
 
     // create new list of constraints and copy all but the last constraint from previous run
-    z3Context = danalyzer.executor.Executor.getZ3Context();
+    z3Context = danalyzer.executor.ExecWrapper.getZ3Context(tid);
     z3Solver = z3Context.mkSolver();
     for (int i = 0; i < z3Constraints.size() - 1; i++) {
       z3Solver.add(z3Constraints.get(i));
@@ -64,7 +66,7 @@ public class Explorer {
 
       if (status == Status.SATISFIABLE) {
         // solvable - get next solution
-        Expr expr = danalyzer.executor.Executor.getSymbolicExpression(symbolicParam);
+        Expr expr = danalyzer.executor.ExecWrapper.getSymbolicExpression(tid, symbolicParam);
         result = z3Solver.getModel().eval(expr, false).toString();
         result = "" + new BigInteger(result).longValue();
         System.out.println(z3Solver.getModel().toString());
@@ -87,7 +89,7 @@ public class Explorer {
       }
     }
     
-    danalyzer.executor.Executor.reset();
+    danalyzer.executor.ExecWrapper.reset();
     return result;
   }
   
