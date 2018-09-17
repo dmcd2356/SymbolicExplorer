@@ -31,3 +31,27 @@ To run the test, simply type:   ./run.sh
 This demonstrates the ability to combine the DSE with a fuzzer to use bit flipping of symbolic constraints to solve for new solutions.
 In this case, the initial input selection was 1, which yielded an instruction count of 59 and a solution of 8 on the 1st round, an instruction count of 752 with a solution of 9 on the 2nd run, which yielded an instruction count of 939 and not solvable on the final round.
 So the final solution was 9, which is the largest value we allowed in our constraints.
+
+== Notes ==
+
+This requires the following DSE method calls to be publicly accessible as an external API:
+
+- danalyzer.executor.ExecWrapper.getZ3Constraints(tid)
+
+  This returns the Z3 constraints for the specified thread.
+  
+- danalyzer.executor.ExecWrapper.getZ3Context(tid)
+
+  This returns the Z3 context for the specified thread.
+
+- danalyzer.executor.ExecWrapper.getSymbolicExpression(tid, symbolicParam)
+
+  This returns the Z3 symbolic expression for the specified symbolic parameter and the specified thread.
+
+- danalyzer.executor.ExecWrapper.reset()
+
+  This resets the DSE stack to allow running the program again and still have it retain the user specified symbolic values and constraints.
+
+- danalyzer.gui.DebugUtil.getInstructionCount()
+
+  This gets the current instruction count as determined by the DSE. It allows SymbolicExplorer to calculate a cost for the program run so it can determine if it is heading in the correct direction.
